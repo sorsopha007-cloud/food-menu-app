@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Drinks Menu with Custom Exchange Rate</title>
+    <style>
+        body {
+            font-family: 'Khmer OS Siemreap', Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { text-align: center; color: #333; margin-bottom: 25px; }
+        
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .menu-wrapper {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .category-title {
+            color: #e67e22;
+            background: #fff;
+            border-bottom: 2px solid #e67e22;
+            padding-bottom: 8px;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .menu-scroll-area {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
+        }
+
+        .right-sidebar {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .cart-section, .calculator-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .menu-item {
+            background: #fafafa;
+            border: 1px solid #eee;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-item:hover {
+            transform: translateY(-3px);
+            border-color: #e67e22;
+            background: #fff;
+        }
+        
+        /* កែទំហំរូបភាពឱ្យចេញពេញលេញល្អ មិនបែក ឬខុសទ្រង់ទ្រាយ */
+        .menu-item img {
+            width: 100%;
+            height: 90px;
+            object-fit: contain;
+            background-color: #fff;
+            border-radius: 6px;
+        }
+
+        .menu-item h3 {
+            font-size: 13px;
+            margin: 6px 0 3px;
+            color: #2c3e50;
+        }
+        .menu-item .price {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 6px;
+        }
+
+        .btn-action-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-qty {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .btn-qty:hover { background: #c0392b; }
+
+        .total {
+            font-size: 15px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 15px;
+            text-align: right;
+            border-top: 2px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .clear-btn {
+            background: #c0392b;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: 'Khmer OS Siemreap', sans-serif;
+            font-size: 13px;
+        }
+        .clear-btn:hover { background: #a93226; }
+
+        .calc-group {
+            margin-bottom: 12px;
+        }
+        .calc-group label {
+            display: block;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+        .calc-group input {
+            width: 100%;
+            padding: 6px 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Khmer OS Siemreap', sans-serif;
+        }
+        .calc-result {
+            font-size: 13px;
+            color: #2980b9;
+            margin-top: 3px;
+            font-weight: bold;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Food & Drinks Menu</h1>
+
+    <div class="main-layout">
+        
+        <!-- Drinks Section (មាន 35 មុខ) -->
+        <div class="menu-wrapper">
+            <h2 class="category-title">Drinks (ភេសជ្ជៈ)</h2>
+            <div class="menu-scroll-area">
+                <div class="items-grid">
+                    <!-- ១ ដល់ ១០ -->
+                    <div class="menu-item" onclick="addToCart('Cafe Ice Latte', 1.75)"><img src="Drinks/Cafe Ice Latte.png" alt=""><h3>Cafe Ice Latte</h3><div class="price">$1.75</div></div>
+                    <div class="menu-item" onclick="addToCart('Green Tea Milk', 2.00)"><img src="Drinks/Ice Green Tea.png" alt=""><h3>Green Tea Milk</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Fresh Orange Juice', 2.25)"><img src="Drinks/Milk Pasion.png" alt=""><h3>Orange Juice</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Chocolate Smoothie', 2.50)"><img src="Drinks/Mocha Frape.png" alt=""><h3>Choco Smoothie</h3><div class="price">$2.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Lemon Soda', 1.50)"><img src="Drinks/Ice Soda Lemon.png" alt=""><h3>Lemon Soda</h3><div class="price">$1.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Passion Fruit', 2.00)"><img src="Drinks/Passion Soda.png" alt=""><h3>Passion Fruit</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Milk Tea Pearls', 2.25)"><img src="Drinks/តែក្រហមទឹកដោះគោ.png" alt=""><h3>Milk Tea Pearls</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Black Coffee', 1.25)"><img src="Drinks/Ice Americano.png" alt=""><h3>Black Coffee</h3><div class="price">$1.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Strawberry Yogurt', 2.75)"><img src="Drinks/Milk Strawberry Frape.png" alt=""><h3>Strawberry Yogurt</h3><div class="price">$2.75</div></div>
+                    <div class="menu-item" onclick="addToCart('Mineral Water', 0.75)"><img src="Drinks/Ice Tea.png" alt=""><h3>Mineral Water</h3><div class="price">$0.75</div></div>
+                    
+                    <!-- ១១ ដល់ ២០ -->
+                    <div class="menu-item" onclick="addToCart('Matcha Latte', 2.25)"><img src="Drinks/Ice Green Tea.png" alt=""><h3>Matcha Latte</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Mocha Frappe', 2.75)"><img src="Drinks/Mocha Frape.png" alt=""><h3>Mocha Frappe</h3><div class="price">$2.75</div></div>
+                    <div class="menu-item" onclick="addToCart('Americano Ice', 1.50)"><img src="Drinks/Ice Americano.png" alt=""><h3>Americano Ice</h3><div class="price">$1.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Passion Soda Mix', 2.00)"><img src="Drinks/Passion Soda.png" alt=""><h3>Passion Soda Mix</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Milk Strawberry', 2.50)"><img src="Drinks/Milk Strawberry Frape.png" alt=""><h3>Milk Strawberry</h3><div class="price">$2.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Milk Passion', 2.25)"><img src="Drinks/Milk Pasion.png" alt=""><h3>Milk Passion</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Ice Lemon Tea', 1.50)"><img src="Drinks/Ice Soda Lemon.png" alt=""><h3>Ice Lemon Tea</h3><div class="price">$1.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Red Milk Tea', 2.00)"><img src="Drinks/តែក្រហមទឹកដោះគោ.png" alt=""><h3>Red Milk Tea</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Ice Tea Original', 1.00)"><img src="Drinks/Ice Tea.png" alt=""><h3>Ice Tea Original</h3><div class="price">$1.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Cafe Latte Hot', 1.75)"><img src="Drinks/Cafe Ice Latte.png" alt=""><h3>Cafe Latte Hot</h3><div class="price">$1.75</div></div>
+
+                    <!-- ២១ ដល់ ៣០ -->
+                    <div class="menu-item" onclick="addToCart('Green Tea Frappe', 2.50)"><img src="Drinks/Ice Green Tea.png" alt=""><h3>Green Tea Frappe</h3><div class="price">$2.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Chocolate Ice', 2.25)"><img src="Drinks/Mocha Frape.png" alt=""><h3>Chocolate Ice</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Soda Mint', 1.75)"><img src="Drinks/Ice Soda Lemon.png" alt=""><h3>Soda Mint</h3><div class="price">$1.75</div></div>
+                    <div class="menu-item" onclick="addToCart('Passion Smoothie', 2.50)"><img src="Drinks/Passion Soda.png" alt=""><h3>Passion Smoothie</h3><div class="price">$2.50</div></div>
+                    <div class="menu-item" onclick="addToCart('Strawberry Soda', 2.00)"><img src="Drinks/Milk Strawberry Frape.png" alt=""><h3>Strawberry Soda</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Milk Coconut', 2.25)"><img src="Drinks/Milk Pasion.png" alt=""><h3>Milk Coconut</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Black Tea Milk', 2.00)"><img src="Drinks/តែក្រហមទឹកដោះគោ.png" alt=""><h3>Black Tea Milk</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Espresso Single', 1.25)"><img src="Drinks/Ice Americano.png" alt=""><h3>Espresso Single</h3><div class="price">$1.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Jasmine Tea', 1.00)"><img src="Drinks/Ice Tea.png" alt=""><h3>Jasmine Tea</h3><div class="price">$1.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Caramel Macchiato', 2.50)"><img src="Drinks/Cafe Ice Latte.png" alt=""><h3>Caramel Macchiato</h3><div class="price">$2.50</div></div>
+
+                    <!-- ៣១ ដល់ ៣៥ -->
+                    <div class="menu-item" onclick="addToCart('Thai Milk Tea', 2.00)"><img src="Drinks/តែក្រហមទឹកដោះគោ.png" alt=""><h3>Thai Milk Tea</h3><div class="price">$2.00</div></div>
+                    <div class="menu-item" onclick="addToCart('Honey Lemon', 1.75)"><img src="Drinks/Ice Soda Lemon.png" alt=""><h3>Honey Lemon</h3><div class="price">$1.75</div></div>
+                    <div class="menu-item" onclick="addToCart('Blueberry Smooth', 2.75)"><img src="Drinks/Milk Strawberry Frape.png" alt=""><h3>Blueberry Smooth</h3><div class="price">$2.75</div></div>
+                    <div class="menu-item" onclick="addToCart('Vanilla Latte', 2.25)"><img src="Drinks/Cafe Ice Latte.png" alt=""><h3>Vanilla Latte</h3><div class="price">$2.25</div></div>
+                    <div class="menu-item" onclick="addToCart('Peppermint Tea', 1.50)"><img src="Drinks/Ice Tea.png" alt=""><h3>Peppermint Tea</h3><div class="price">$1.50</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Foods Section -->
+        <div class="menu-wrapper">
+            <h2 class="category-title" style="color: #27ae60; border-color: #27ae60;">Foods (អាហារ)</h2>
+            <div class="menu-scroll-area">
+                <div class="items-grid">
+                    <div class="menu-item" onclick="addToCart('បាយភ្លៅមាន់', 3.00)">
+                        <img src="Foods/បាយភ្លៅមាន់.png" alt="">
+                        <h3>បាយភ្លៅមាន់</h3>
+                        <div class="price">$3.00</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយឡុកឡាក់', 4.00)">
+                        <img src="Foods/បាយឡុកឡាក់.png" alt="">
+                        <h3>បាយឡុកឡាក់</h3>
+                        <div class="price">$4.00</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយឆាគ្រឿងសមុទ្រ', 3.50)">
+                        <img src="Foods/បាយឆាគ្រឿងសមុទ្រ.png" alt="">
+                        <h3>បាយឆាគ្រឿងសមុទ្រ</h3>
+                        <div class="price">$3.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយឆាសាច់គោ', 3.25)">
+                        <img src="Foods/បាយឆាសាច់គោ.png" alt="">
+                        <h3>បាយឆាសាច់គោ</h3>
+                        <div class="price">$3.25</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយសាច់ជ្រូក', 3.50)">
+                        <img src="Foods/បាយសាច់ជ្រូក.png" alt="">
+                        <h3>បាយសាច់ជ្រូក</h3>
+                        <div class="price">$3.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយស្លាបមាន់', 3.00)">
+                        <img src="Foods/បាយស្លាបមាន់.png" alt="">
+                        <h3>បាយស្លាបមាន់</h3>
+                        <div class="price">$3.00</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយបំពង', 2.75)">
+                        <img src="Foods/បាយបំពង.png" alt="">
+                        <h3>បាយបំពង</h3>
+                        <div class="price">$2.75</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('សាច់ជ្រូកអាំង', 3.50)">
+                        <img src="Foods/សាច់ជ្រូកអាំង.png" alt="">
+                        <h3>សាច់ជ្រូកអាំង</h3>
+                        <div class="price">$3.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បង្គាអាំង', 4.50)">
+                        <img src="Foods/បង្គាអាំង.png" alt="">
+                        <h3>បង្គាអាំង</h3>
+                        <div class="price">$4.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('មឹកអាំង', 4.50)">
+                        <img src="Foods/មឹកអាំង.png" alt="">
+                        <h3>មឹកអាំង</h3>
+                        <div class="price">$4.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('ត្រីចៀន', 3.50)">
+                        <img src="Foods/ត្រីចៀន.png" alt="">
+                        <h3>ត្រីចៀន</h3>
+                        <div class="price">$3.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('កង្កែបបំពង', 3.50)">
+                        <img src="Foods/កង្កែបបំពង.png" alt="">
+                        <h3>កង្កែបបំពង</h3>
+                        <div class="price">$2.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('ដំឡូងបំពង', 2.00)">
+                        <img src="Foods/ដំឡូងបំពង.png" alt="">
+                        <h3>ដំឡូងបំពង</h3>
+                        <div class="price">$2.00</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('ប្រហិតបំពង', 2.50)">
+                        <img src="Foods/ប្រហិតបំពង.png" alt="">
+                        <h3>ប្រហិតបំពង</h3>
+                        <div class="price">$2.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('សណ្តែកជប៉ុន', 2.00)">
+                        <img src="Foods/សណ្តែកជប៉ុន.png" alt="">
+                        <h3>សណ្តែកជប៉ុន</h3>
+                        <div class="price">$2.00</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('ពងមាន់អាំង', 1.50)">
+                        <img src="Foods/ពងមាន់់អាំង.png" alt="">
+                        <h3>ពងមាន់អាំង</h3>
+                        <div class="price">$1.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បុកល្ហុង ក្តាមសេះ បង្គារ ងាវ', 4.50)">
+                        <img src="Foods/បុកល្ហុង ក្តាមសេះ បង្គារ ងាវ.png" alt="">
+                        <h3>បុកល្ហុង ក្តាមសេះ បង្គារ ងាវ</h3>
+                        <div class="price">$4.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('កល្ហុង, ក្ដាមប្រៃ, ជើងមាន់, ប៉ាតេ', 3.50)">
+                        <img src="Foods/កល្ហុង,ក្ដាមប្រៃ, ជើងមាន់,​​ប៉ាតេ.png" alt="">
+                        <h3>បុកល្ហុងគ្រឿងစုံ</h3>
+                        <div class="price">$3.50</div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('បាយស', 0.50)">
+                        <img src="Foods/បាយស.png" alt="">
+                        <h3>បាយស</h3>
+                        <div class="price">$0.50</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Cart & Converter -->
+        <div class="right-sidebar">
+            <div class="cart-section">
+                <h3 style="margin-top:0; border-bottom: 2px solid #333; padding-bottom: 5px; font-size: 16px;">Result / Cart</h3>
+                <div id="cartList" style="max-height: 40vh; overflow-y: auto;">
+                    <p style="color: #999; font-size: 13px;">មិនទាន់មានការជ្រើសរើស</p>
+                </div>
+                <div class="total">
+                    សរុប: $<span id="totalPriceUsd">0.00</span> / <span id="totalPriceKhr">0</span> រៀល
+                </div>
+                <button class="clear-btn" onclick="clearCart()">លុបទាំងអស់ (Clear)</button>
+            </div>
+
+            <div class="calculator-section">
+                <h3 style="margin-top:0; border-bottom: 2px solid #e67e22; padding-bottom: 5px; font-size: 15px; color: #e67e22;">Currency Converter</h3>
+                
+                <div class="calc-group">
+                    <label>⚙️ អត្រាប្តូរប្រាក់ (1$ / Riel):</label>
+                    <input type="number" id="exchangeRate" value="4000" oninput="updateAllCalculations()" step="any">
+                </div>
+
+                <div class="calc-group">
+                    <label>💵 Dollar to Riel ($):</label>
+                    <input type="number" id="inputUsd" placeholder="បញ្ចូលទឹកប្រាក់ដុល្លារ" oninput="convertUsdToRiel()" step="any">
+                    <div class="calc-result" id="resultRiel">= 0 រៀល</div>
+                </div>
+
+                <div class="calc-group" style="margin-bottom: 0;">
+                    <label>៛ Riel to Dollar (រៀល):</label>
+                    <input type="number" id="inputRiel" placeholder="បញ្ចូលទឹកប្រាក់រៀល" oninput="convertRielToUsd()" step="any">
+                    <div class="calc-result" id="resultUsd">= $0.00</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let cart = {};
+
+        function getRate() {
+            let rate = parseFloat(document.getElementById('exchangeRate').value);
+            return (isNaN(rate) || rate <= 0) ? 4000 : rate;
+        }
+
+        function addToCart(itemName, itemPrice) {
+            if (cart[itemName]) {
+                cart[itemName].quantity += 1;
+            } else {
+                cart[itemName] = { price: itemPrice, quantity: 1 };
+            }
+            updateCartDisplay();
+        }
+
+        function decreaseQuantity(itemName) {
+            if (cart[itemName]) {
+                cart[itemName].quantity -= 1;
+                if (cart[itemName].quantity <= 0) {
+                    delete cart[itemName];
+                }
+            }
+            updateCartDisplay();
+        }
+
+        function clearCart() {
+            cart = {};
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            let cartList = document.getElementById('cartList');
+            let totalPriceUsdEl = document.getElementById('totalPriceUsd');
+            let totalPriceKhrEl = document.getElementById('totalPriceKhr');
+            let currentRate = getRate();
+            
+            if (Object.keys(cart).length === 0) {
+                cartList.innerHTML = '<p style="color: #999; font-size: 13px;">មិនទាន់មានការជ្រើសរើស</p>';
+                totalPriceUsdEl.innerText = '0.00';
+                totalPriceKhrEl.innerText = '0';
+                return;
+            }
+
+            let html = '';
+            let grandTotalUsd = 0;
+
+            for (let name in cart) {
+                let item = cart[name];
+                let itemTotal = item.price * item.quantity;
+                grandTotalUsd += itemTotal;
+
+                html += `<div class="cart-item">
+                            <span>${name} (x${item.quantity})</span>
+                            <div class="btn-action-group">
+                                <span style="font-weight: bold; margin-right: 5px;">$${itemTotal.toFixed(2)}</span>
+                                <button class="btn-qty" onclick="addToCart('${name}', ${item.price})">+</button>
+                                <button class="btn-qty" onclick="decreaseQuantity('${name}')">-</button>
+                            </div>
+                       </div>`;
+            }
+
+            let grandTotalKhr = Math.round(grandTotalUsd * currentRate);
+
+            cartList.innerHTML = html;
+            totalPriceUsdEl.innerText = grandTotalUsd.toFixed(2);
+            totalPriceKhrEl.innerText = grandTotalKhr.toLocaleString();
+        }
+
+        function convertUsdToRiel() {
+            let usd = parseFloat(document.getElementById('inputUsd').value);
+            let resultRielEl = document.getElementById('resultRiel');
+            let currentRate = getRate();
+            
+            if (isNaN(usd) || document.getElementById('inputUsd').value === '') {
+                resultRielEl.innerText = '= 0 រៀល';
+                return;
+            }
+            let riel = Math.round(usd * currentRate);
+            resultRielEl.innerText = '= ' + riel.toLocaleString() + ' រៀល';
+        }
+
+        function convertRielToUsd() {
+            let riel = parseFloat(document.getElementById('inputRiel').value);
+            let resultUsdEl = document.getElementById('resultUsd');
+            let currentRate = getRate();
+            
+            if (isNaN(riel) || document.getElementById('inputRiel').value === '') {
+                resultUsdEl.innerText = '= $0.00';
+                return;
+            }
+            let usd = riel / currentRate;
+            resultUsdEl.innerText = '= $' + usd.toFixed(2);
+        }
+
+        function updateAllCalculations() {
+            updateCartDisplay();
+            convertUsdToRiel();
+            convertRielToUsd();
+        }
+    </script>
+</body>
+</html>
